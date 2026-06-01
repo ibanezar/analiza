@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKU Performance & CRO Report — MyHank IT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f6f3;
+    --bg3: #f0efe9;
+    --text: #1a1a18;
+    --text2: #6b6a65;
+    --text3: #a09f9a;
+    --border: rgba(0,0,0,0.10);
+    --border2: rgba(0,0,0,0.18);
+    --accent: #1a1a18;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --green: #0F6E56;
+    --green-bg: #E1F5EE;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --purple: #3C3489;
+    --purple-bg: #EEEDFE;
+    --pink: #72243E;
+    --pink-bg: #FBEAF0;
+    --gray: #444441;
+    --gray-bg: #F1EFE8;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --bg2: #242421;
+      --bg3: #2c2c2a;
+      --text: #f0efe9;
+      --text2: #a09f9a;
+      --text3: #6b6a65;
+      --border: rgba(255,255,255,0.10);
+      --border2: rgba(255,255,255,0.18);
+      --accent: #f0efe9;
+      --green: #9FE1CB;
+      --green-bg: #085041;
+      --red: #F09595;
+      --red-bg: #501313;
+      --amber: #FAC775;
+      --amber-bg: #412402;
+      --blue: #85B7EB;
+      --blue-bg: #042C53;
+      --purple: #AFA9EC;
+      --purple-bg: #26215C;
+      --pink: #ED93B1;
+      --pink-bg: #4B1528;
+      --gray: #B4B2A9;
+      --gray-bg: #2C2C2A;
+    }
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    padding: 40px 0 28px;
+    border-bottom: 0.5px solid var(--border2);
+    margin-bottom: 28px;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand-mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .site-title {
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--text);
+    letter-spacing: -.02em;
+  }
+  .site-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 6px;
+  }
+  .header-meta {
+    text-align: right;
+  }
+  .meta-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .skus-list {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    position: sticky;
+    top: 0;
+    background: var(--bg3);
+    padding: 10px 0;
+    z-index: 100;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .nav-tab {
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text2);
+    transition: all .15s;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .nav-tab:hover:not(.active) {
+    background: var(--bg2);
+    color: var(--text);
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.visible { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 14px;
+  }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .kpi {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--text3);
+    margin-bottom: 7px;
+  }
+  .kpi-value {
+    font-size: 24px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    line-height: 1;
+  }
+  .kpi-value.neg { color: var(--red); }
+  .kpi-value.pos { color: var(--green); }
+
+  /* ── CHARTS ── */
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* ── PILLS ── */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill-neg { background: var(--red-bg); color: var(--red); }
+  .pill-pos { background: var(--green-bg); color: var(--green); }
+  .pill-warn { background: var(--amber-bg); color: var(--amber); }
+  .pill-price { background: var(--amber-bg); color: var(--amber); }
+  .pill-page { background: var(--green-bg); color: var(--green); }
+  .pill-bundle { background: var(--purple-bg); color: var(--purple); }
+  .pill-checkout { background: #FAECE7; color: #712B13; }
+  .pill-trust { background: var(--red-bg); color: var(--red); }
+  .pill-creative { background: var(--gray-bg); color: var(--gray); }
+  .pill-upsell { background: var(--pink-bg); color: var(--pink); }
+  .pill-sku { background: var(--blue-bg); color: var(--blue); }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    table-layout: fixed;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text3);
+    border-bottom: 0.5px solid var(--border2);
+  }
+  .data-table td {
+    padding: 9px 10px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    vertical-align: middle;
+  }
+  .data-table td.name-col {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tbody tr:hover td { background: var(--bg2); cursor: pointer; }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 520px) { .two-col { grid-template-columns: 1fr; } }
+  .info-block {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .info-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text3);
+    margin-bottom: 5px;
+  }
+  .info-val {
+    font-size: 20px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+  }
+
+  /* ── SKU DETAIL ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0 0 16px;
+    font-family: 'DM Sans', sans-serif;
+    transition: color .12s;
+  }
+  .back-btn:hover { color: var(--text); }
+  .back-arrow { font-size: 16px; }
+  .sku-name { font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 4px; letter-spacing: -.01em; }
+  .sku-url { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); margin-bottom: 12px; }
+  .target-box {
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 13px 16px;
+    margin-bottom: 14px;
+    background: var(--bg);
+  }
+  .target-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text3);
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  .target-text { font-size: 13px; color: var(--text); }
+  .priority-list { list-style: none; padding: 0; }
+  .priority-item {
+    display: flex;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 0.5px solid var(--border);
+    align-items: flex-start;
+  }
+  .priority-item:last-child { border-bottom: none; }
+  .p-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--bg2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text3);
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'DM Mono', monospace;
+  }
+  .p-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+  /* ── PLAYBOOK ── */
+  .playbook-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 560px) { .playbook-grid { grid-template-columns: 1fr; } }
+  .rule-block {
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .rule-block.dont {
+    background: var(--red-bg);
+    border: 0.5px solid var(--red);
+  }
+  .rule-block.do {
+    background: var(--green-bg);
+    border: 0.5px solid var(--green);
+  }
+  .rule-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 10px;
+  }
+  .rule-block.dont .rule-title { color: var(--red); }
+  .rule-block.do .rule-title { color: var(--green); }
+  .rule-block ul { list-style: none; padding: 0; }
+  .rule-block ul li {
+    font-size: 12px;
+    padding: 4px 0;
+    line-height: 1.5;
+    display: flex;
+    gap: 7px;
+  }
+  .rule-block.dont ul li { color: var(--red); }
+  .rule-block.do ul li { color: var(--green); }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .bar-label { width: 100px; color: var(--text2); text-align: right; flex-shrink: 0; }
+  .bar-track {
+    flex: 1;
+    background: var(--bg2);
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .bar-fill { height: 8px; border-radius: 4px; }
+  .bar-val {
+    width: 60px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  /* ── PRIORITY TAB ── */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-label {
+    font-size: 10px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    width: 32px;
+  }
+  .filter-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+  .fbtn {
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text2);
+    transition: all .12s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .fbtn.on {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .fbtn:hover:not(.on) { background: var(--bg2); }
+  .count-bar {
+    font-size: 11px;
+    color: var(--text3);
+    margin: 14px 0 4px;
+  }
+  .count-num { font-weight: 500; color: var(--text); }
+  .wave-section { margin-bottom: 20px; }
+  .wave-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 9px;
+    border-bottom: 0.5px solid var(--border2);
+  }
+  .wave-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .wave-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .wave-meta { font-size: 11px; color: var(--text3); margin-left: auto; }
+  .wave-desc { font-size: 11px; color: var(--text2); margin-left: 38px; margin-top: -6px; margin-bottom: 10px; }
+  .task-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+    align-items: flex-start;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-left { display: flex; align-items: flex-start; gap: 8px; flex: 1; min-width: 0; }
+  .task-num {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    width: 18px;
+    flex-shrink: 0;
+    padding-top: 2px;
+    text-align: right;
+  }
+  .task-text { font-size: 12px; color: var(--text); line-height: 1.55; flex: 1; min-width: 0; }
+  .task-tags {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 170px;
+    padding-top: 1px;
+  }
+  .empty-msg { font-size: 13px; color: var(--text3); padding: 2rem 0; text-align: center; }
+
+  /* ── FUNNEL TABLE ── */
+  .funnel-scroll { overflow-x: auto; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section.visible { animation: fadeUp .2s ease; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-top">
+      <div>
+        <div class="brand-mono">MyHank IT · SKU Performance &amp; CRO Report</div>
+        <h1 class="site-title">Performance Dashboard</h1>
+        <p class="site-sub">Full analysis · metrics · priorities · action plan</p>
+      </div>
+      <div class="header-meta">
+        <div class="meta-date">1 June 2026</div>
+        <div class="skus-list">RustAid · Elevate · MicroRack<br>Remerod · AquaLevel · Riboton · AutoSecure</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="nav-tab active" onclick="showSection('overview', this)" role="tab">Overview</button>
+    <button class="nav-tab" onclick="showSection('funnel', this)" role="tab">Funnel metrics</button>
+    <button class="nav-tab" onclick="showSection('skus', this)" role="tab">SKU deep-dives</button>
+    <button class="nav-tab" onclick="showSection('playbook', this)" role="tab">Playbook</button>
+    <button class="nav-tab" onclick="showSection('priorities', this)" role="tab">What to do first</button>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       SECTION: OVERVIEW
+  ══════════════════════════════════════ -->
+  <section id="section-overview" class="section visible">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Total orders</div><div class="kpi-value">9,768</div></div>
+      <div class="kpi"><div class="kpi-label">Total revenue</div><div class="kpi-value">€245,116</div></div>
+      <div class="kpi"><div class="kpi-label">Total profit</div><div class="kpi-value pos">€15,470</div></div>
+      <div class="kpi"><div class="kpi-label">SKUs in loss</div><div class="kpi-value neg">3 / 7</div></div>
+      <div class="kpi"><div class="kpi-label">Avg ROAS</div><div class="kpi-value">2.25</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Profit per order by SKU</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#1D9E75"></span>Positive</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#E24B4A"></span>Negative</span>
+      </div>
+      <div class="chart-wrap" style="height:200px"><canvas id="profitChart" role="img" aria-label="Profit per order bar chart across 7 SKUs">RustAid 2.90, Elevate -0.62, MicroRack 1.92, Remerod -0.17, AquaLevel 0.65, Riboton -1.30, AutoSecure 0.53.</canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Revenue vs. profit per SKU</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#B5D4F4"></span>Revenue</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#C0DD97"></span>Profit (positive)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#F7C1C1"></span>Profit (negative)</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="revChart" role="img" aria-label="Revenue vs profit grouped bar chart">Revenue and profit comparison across 7 SKUs.</canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Economics table</div>
+      <div class="funnel-scroll">
+        <table class="data-table">
+          <thead><tr>
+            <th style="width:110px">SKU</th>
+            <th>Orders</th><th>Revenue</th><th>Profit</th>
+            <th>Profit/order</th><th>ROAS</th><th>AOV</th><th>Qty/order</th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="name-col">RustAid</td><td>3,622</td><td>€74,990</td><td>€10,516</td><td><span class="pill pill-pos">€2.90</span></td><td>2.78</td><td>€20.70</td><td>1.42</td></tr>
+            <tr><td class="name-col">Elevate</td><td>1,693</td><td>€35,287</td><td>−€1,051</td><td><span class="pill pill-neg">−€0.62</span></td><td>2.18</td><td>€20.84</td><td>1.38</td></tr>
+            <tr><td class="name-col">MicroRack</td><td>3,153</td><td>€82,069</td><td>€6,063</td><td><span class="pill pill-warn">€1.92</span></td><td>2.81</td><td>€26.03</td><td>1.16</td></tr>
+            <tr><td class="name-col">Remerod</td><td>608</td><td>€11,225</td><td>−€104</td><td><span class="pill pill-neg">−€0.17</span></td><td>1.68</td><td>€18.46</td><td>1.32</td></tr>
+            <tr><td class="name-col">AquaLevel</td><td>427</td><td>€11,619</td><td>€276</td><td><span class="pill pill-warn">€0.65</span></td><td>2.11</td><td>€27.21</td><td>1.54</td></tr>
+            <tr><td class="name-col">Riboton</td><td>491</td><td>€12,855</td><td>−€640</td><td><span class="pill pill-neg">−€1.30</span></td><td>2.24</td><td>€26.18</td><td>1.12</td></tr>
+            <tr><td class="name-col">AutoSecure</td><td>774</td><td>€17,072</td><td>€409</td><td><span class="pill pill-warn">€0.53</span></td><td>1.94</td><td>€22.06</td><td>1.64</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECTION: FUNNEL
+  ══════════════════════════════════════ -->
+  <section id="section-funnel" class="section">
+    <div class="card">
+      <div class="card-title">Click → Add to cart (%)</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="atcChart" role="img" aria-label="Click to ATC rates bar chart">ATC rates from 4.5% to 10.7%.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ATC → Checkout (%)</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="ctcChart" role="img" aria-label="ATC to checkout rates">ATC to checkout conversion rates.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Checkout → Purchase (%)</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="cpChart" role="img" aria-label="Checkout to purchase rates">Checkout to purchase rates from 36.5% to 55.5%.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Full funnel metrics table</div>
+      <div class="funnel-scroll">
+        <table class="data-table">
+          <thead><tr>
+            <th style="width:100px">SKU</th>
+            <th>Clicks</th><th>ATC</th><th>CKO</th><th>Purch.</th>
+            <th>Click→ATC</th><th>ATC→CKO</th><th>CKO→Purch</th><th>CPC</th><th>CTR</th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="name-col">RustAid</td><td>126,331</td><td>12,722</td><td>7,066</td><td>2,582</td><td>10.1%</td><td>55.5%</td><td>36.5%</td><td>€0.21</td><td>1.3%</td></tr>
+            <tr><td class="name-col">Elevate</td><td>68,272</td><td>7,306</td><td>3,203</td><td>1,254</td><td>10.7%</td><td>43.8%</td><td>39.2%</td><td>€0.24</td><td>1.4%</td></tr>
+            <tr><td class="name-col">MicroRack</td><td>115,073</td><td>11,200</td><td>5,931</td><td>2,427</td><td>9.7%</td><td>53.0%</td><td>40.9%</td><td>€0.25</td><td>1.6%</td></tr>
+            <tr><td class="name-col">Remerod</td><td>28,603</td><td>1,712</td><td>1,161</td><td>530</td><td>6.0%</td><td>67.8%</td><td>45.7%</td><td>€0.23</td><td>1.4%</td></tr>
+            <tr><td class="name-col">AquaLevel</td><td>22,532</td><td>1,011</td><td>696</td><td>345</td><td>4.5%</td><td>68.8%</td><td>49.6%</td><td>€0.24</td><td>1.3%</td></tr>
+            <tr><td class="name-col">Riboton</td><td>22,608</td><td>1,437</td><td>1,006</td><td>455</td><td>6.4%</td><td>70.0%</td><td>45.2%</td><td>€0.25</td><td>2.0%</td></tr>
+            <tr><td class="name-col">AutoSecure</td><td>24,926</td><td>1,797</td><td>1,282</td><td>711</td><td>7.2%</td><td>71.3%</td><td>55.5%</td><td>€0.35</td><td>1.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECTION: SKU DEEP-DIVES
+  ══════════════════════════════════════ -->
+  <section id="section-skus" class="section">
+    <div id="sku-list-view">
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px">Click a row to see full diagnosis and action plan</p>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="data-table">
+          <thead><tr>
+            <th style="padding-left:16px;width:28px">#</th>
+            <th style="width:120px">SKU</th>
+            <th>Orders</th><th>Revenue</th><th>Profit/order</th>
+            <th>ROAS</th><th>AOV</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            <tr onclick="openSku(0)" style="cursor:pointer"><td style="padding-left:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">1</td><td class="name-col">Elevate Cucina</td><td>1,693</td><td>€35,287</td><td><span class="pill pill-neg">−€0.62</span></td><td>2.18</td><td>€20.84</td><td><span class="pill pill-neg">Fix now</span></td></tr>
+            <tr onclick="openSku(1)" style="cursor:pointer"><td style="padding-left:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">2</td><td class="name-col">Riboton</td><td>491</td><td>€12,855</td><td><span class="pill pill-neg">−€1.30</span></td><td>2.24</td><td>€26.18</td><td><span class="pill pill-neg">Fix now</span></td></tr>
+            <tr onclick="openSku(2)" style="cursor:pointer"><td style="padding-left:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">3</td><td class="name-col">AutoSecure</td><td>774</td><td>€17,072</td><td><span class="pill pill-warn">€0.53</span></td><td>1.94</td><td>€22.06</td><td><span class="pill pill-warn">Price test</span></td></tr>
+            <tr onclick="openSku(3)" style="cursor:pointer"><td style="padding-left:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">4</td><td class="name-col">AquaLevel</td><td>427</td><td>€11,619</td><td><span class="pill pill-warn">€0.65</span></td><td>2.11</td><td>€27.21</td><td><span class="pill pill-warn">Compatibility</span></td></tr>
+            <tr onclick="openSku(4)" style="cursor:pointer"><td style="padding-left:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">5</td><td class="name-col">Remerod</td><td>608</td><td>€11,225</td><td><span class="pill pill-neg">−€0.17</span></td><td>1.68</td><td>€18.46</td><td><span class="pill pill-neg">Fix now</span></td></tr>
+            <tr onclick="openSku(5)" style="cursor:pointer"><td style="padding-left:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">6</td><td class="name-col">MicroRack</td><td>3,153</td><td>€82,069</td><td><span class="pill pill-warn">€1.92</span></td><td>2.81</td><td>€26.03</td><td><span class="pill pill-warn">Thin margin</span></td></tr>
+            <tr onclick="openSku(6)" style="cursor:pointer"><td style="padding-left:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">7</td><td class="name-col">RustAid</td><td>3,622</td><td>€74,990</td><td><span class="pill pill-pos">€2.90</span></td><td>2.78</td><td>€20.70</td><td><span class="pill pill-pos">Scale &amp; AOV</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="sku-detail-view" style="display:none"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECTION: PLAYBOOK
+  ══════════════════════════════════════ -->
+  <section id="section-playbook" class="section">
+    <div class="card">
+      <div class="card-title">Key insight</div>
+      <p style="font-size:13px;color:var(--text);line-height:1.7">For most SKUs, CPC and CPM are healthy. The core issue is <strong style="font-weight:500">thin profit per order</strong> — lowering prices is the wrong first reaction. The fastest levers are a higher price, a smarter bundle selector, and compatibility/specs placed right next to the CTA. Only then: new ad angles.</p>
+    </div>
+    <div class="playbook-grid">
+      <div class="rule-block dont">
+        <div class="rule-title">✕ Don't do this</div>
+        <ul>
+          <li>→ Lower prices on SKUs already getting clicks and ATCs</li>
+          <li>→ Launch new ad campaigns before fixing page economics</li>
+          <li>→ Treat hidden HTML duplicates as a top CRO problem</li>
+          <li>→ Push larger quantities with discounts alone — explain the use-case</li>
+        </ul>
+      </div>
+      <div class="rule-block do">
+        <div class="rule-title">✓ Do this first</div>
+        <ul>
+          <li>→ Thin profit/order → test higher price and better bundle framing</li>
+          <li>→ Weak click→ATC → add compatibility/specs block + how-it-works visual</li>
+          <li>→ Weak checkout→purchase → audit shipping/COD clarity and mobile fields</li>
+          <li>→ Low qty/order → 2-pack default or use-case selector, not a discount</li>
+          <li>→ Install/safety products → remove every template/copy mismatch</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">KPI targets after changes</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Minimum threshold to consider a SKU ready for scale</p>
+      <div class="bar-row"><div class="bar-label">Profit/order</div><div class="bar-track"><div class="bar-fill" style="width:62%;background:#1D9E75"></div></div><div class="bar-val">≥ €2.50</div></div>
+      <div class="bar-row"><div class="bar-label">Click → ATC</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#378ADD"></div></div><div class="bar-val">8–10%</div></div>
+      <div class="bar-row"><div class="bar-label">CKO → Purchase</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:#7F77DD"></div></div><div class="bar-val">45–55%</div></div>
+      <div class="bar-row"><div class="bar-label">Qty / order</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:#BA7517"></div></div><div class="bar-val">1.4–1.6</div></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECTION: WHAT TO DO FIRST
+  ══════════════════════════════════════ -->
+  <section id="section-priorities" class="section">
+    <div class="filter-row">
+      <span class="filter-label">SKU</span>
+      <div class="filter-btns" id="sku-filters">
+        <button class="fbtn on" data-sku="all" onclick="filterSku(this)">All</button>
+        <button class="fbtn" data-sku="Elevate" onclick="filterSku(this)">Elevate</button>
+        <button class="fbtn" data-sku="Riboton" onclick="filterSku(this)">Riboton</button>
+        <button class="fbtn" data-sku="AutoSecure" onclick="filterSku(this)">AutoSecure</button>
+        <button class="fbtn" data-sku="AquaLevel" onclick="filterSku(this)">AquaLevel</button>
+        <button class="fbtn" data-sku="Remerod" onclick="filterSku(this)">Remerod</button>
+        <button class="fbtn" data-sku="MicroRack" onclick="filterSku(this)">MicroRack</button>
+        <button class="fbtn" data-sku="RustAid" onclick="filterSku(this)">RustAid</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Type</span>
+      <div class="filter-btns" id="cat-filters">
+        <button class="fbtn on" data-cat="all" onclick="filterCat(this)">All</button>
+        <button class="fbtn" data-cat="price" onclick="filterCat(this)">Price test</button>
+        <button class="fbtn" data-cat="page" onclick="filterCat(this)">Page/copy</button>
+        <button class="fbtn" data-cat="bundle" onclick="filterCat(this)">Bundle</button>
+        <button class="fbtn" data-cat="checkout" onclick="filterCat(this)">Checkout</button>
+        <button class="fbtn" data-cat="trust" onclick="filterCat(this)">Trust fix</button>
+        <button class="fbtn" data-cat="creative" onclick="filterCat(this)">Creative</button>
+        <button class="fbtn" data-cat="upsell" onclick="filterCat(this)">Upsell</button>
+      </div>
+    </div>
+    <div class="count-bar"><span class="count-num" id="count-num">70</span> tasks shown</div>
+    <div id="task-list"></div>
+  </section>
+
+</div><!-- /shell -->
+
+<script>
+/* ── SECTION SWITCHING ── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('section-' + id).classList.add('visible');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (id === 'priorities') buildTaskList();
+}
+
+/* ── CHART DATA ── */
+const SKUS = ['RustAid','Elevate','MicroRack','Remerod','AquaLevel','Riboton','AutoSecure'];
+const profits = [2.90, -0.62, 1.92, -0.17, 0.65, -1.30, 0.53];
+const revenues = [74990, 35287, 82069, 11225, 11619, 12855, 17072];
+const profitsTotal = [10516, -1051, 6063, -104, 276, -640, 409];
+const atc = [10.1, 10.7, 9.7, 6.0, 4.5, 6.4, 7.2];
+const ctc = [55.5, 43.8, 53.0, 67.8, 68.8, 70.0, 71.3];
+const cp = [36.5, 39.2, 40.9, 45.7, 49.6, 45.2, 55.5];
+
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const gridColor = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+const labelColor = isDark ? '#a09f9a' : '#6b6a65';
+
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = labelColor;
+
+const profitColors = profits.map(v => v < 0 ? '#E24B4A' : '#1D9E75');
+const profitBorderColors = profits.map(v => v < 0 ? '#A32D2D' : '#0F6E56');
+
+new Chart(document.getElementById('profitChart'), {
+  type: 'bar',
+  data: { labels: SKUS, datasets: [{ data: profits, backgroundColor: profitColors, borderColor: profitBorderColors, borderWidth: 1.5, borderRadius: 5 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => (c.raw > 0 ? '+' : '') + c.raw.toFixed(2) + ' €' } } }, scales: { y: { grid: { color: gridColor }, ticks: { callback: v => (v > 0 ? '+' : '') + v + ' €', color: labelColor } }, x: { grid: { display: false }, ticks: { color: labelColor } } } }
+});
+
+new Chart(document.getElementById('revChart'), {
+  type: 'bar',
+  data: { labels: SKUS, datasets: [
+    { label: 'Revenue', data: revenues, backgroundColor: '#B5D4F4', borderColor: '#378ADD', borderWidth: 1, borderRadius: 4 },
+    { label: 'Profit', data: profitsTotal, backgroundColor: profitsTotal.map(v => v < 0 ? '#F7C1C1' : '#C0DD97'), borderColor: profitsTotal.map(v => v < 0 ? '#E24B4A' : '#639922'), borderWidth: 1, borderRadius: 4 }
+  ]},
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor }, ticks: { callback: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v, color: labelColor } }, x: { grid: { display: false }, ticks: { color: labelColor } } } }
+});
+
+new Chart(document.getElementById('atcChart'), {
+  type: 'bar',
+  data: { labels: SKUS, datasets: [{ label: 'Click→ATC %', data: atc, backgroundColor: atc.map(v => v < 6 ? '#F7C1C1' : v >= 9 ? '#C0DD97' : '#FAC775'), borderColor: atc.map(v => v < 6 ? '#E24B4A' : v >= 9 ? '#639922' : '#EF9F27'), borderWidth: 1, borderRadius: 4 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor }, max: 14, ticks: { callback: v => v + '%', color: labelColor } }, x: { grid: { display: false }, ticks: { color: labelColor } } } }
+});
+
+new Chart(document.getElementById('ctcChart'), {
+  type: 'bar',
+  data: { labels: SKUS, datasets: [{ label: 'ATC→Checkout %', data: ctc, backgroundColor: '#CECBF6', borderColor: '#534AB7', borderWidth: 1, borderRadius: 4 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor }, ticks: { callback: v => v + '%', color: labelColor } }, x: { grid: { display: false }, ticks: { color: labelColor } } } }
+});
+
+new Chart(document.getElementById('cpChart'), {
+  type: 'bar',
+  data: { labels: SKUS, datasets: [{ label: 'Checkout→Purchase %', data: cp, backgroundColor: cp.map(v => v < 40 ? '#F7C1C1' : v >= 50 ? '#C0DD97' : '#FAC775'), borderColor: cp.map(v => v < 40 ? '#E24B4A' : v >= 50 ? '#639922' : '#EF9F27'), borderWidth: 1, borderRadius: 4 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor }, ticks: { callback: v => v + '%', color: labelColor } }, x: { grid: { display: false }, ticks: { color: labelColor } } } }
+});
+
+/* ── SKU DATA ── */
+const SKU_DATA = [
+  { name: 'Elevate Cucina', status: 'Demand exists — currently negative', statusClass: 'neg', orders: 1693, profit: -0.62, roas: 2.18, aov: 20.84, qty: 1.38, atcR: 10.7, cpR: 39.2, target: 'Profit/order from −€0.62 to +€2.50–3.00', url: 'https://myhank.it/prodotto/elevate-cucina/', priorities: ['Raise price: 1x €16.99, 2x €29.99, 3x €39.99–42.99','Reframe bundle selector as use-case logic: microonde, angolo caffe, lavanderia/garage','Set 2-pack as default — sell as an organisation system, not a discount','Replace unrelated LotionRack upsell with another Elevate/kitchen organiser','Fix ATC→checkout drop: cart drawer, shipping cost, COD, mobile speed','Add compatibility block near CTA: dimensions, load up to 25 kg, which appliances','ATF headline more problem-aware: "Poco spazio in cucina?"','Hero/video: before/after mess → organised counter','Tie reviews to microwave, coffee corner, small kitchen, laundry','Test creative angle only after raising price and fixing bundle'] },
+  { name: 'Riboton / Tire Gauge TPMS', status: 'Strong ads — page trust and price failing', statusClass: 'neg', orders: 491, profit: -1.30, roas: 2.24, aov: 26.18, qty: 1.12, atcR: 6.4, cpR: 45.2, target: 'Profit/order from −€1.30 to +€2.50–3.00', url: 'https://myhank.it/prodotto/riboton/', priorities: ['Fix visible warranty/FAQ/template errors on the frontend immediately','Test higher price: 1x €24.99, 2x €44.99, 3x €59.99','ATF clearly states: complete TPMS kit, display + sensors, pressure + temp, alarms','Compatibility/specs near CTA: auto/SUV/furgoni, 0–99 PSI, solar + USB, certs','Sell 2-pack as "second car / family car", not a random discount','Replace upsell with a more relevant car-safety add-on','ATF headline uses safety angle: low pressure isn\'t always visible','Add 3-step visual: sensors on valves, display on dash, real-time alerts','Make reviews concrete: long drive, low pressure, no wires, solar charging','Test creatives only after page trust and price fixes'] },
+  { name: 'AutoSecure / Door Closer', status: 'Best post-ATC funnel — near-zero profit', statusClass: 'warn', orders: 774, profit: 0.53, roas: 1.94, aov: 22.06, qty: 1.64, atcR: 7.2, cpR: 55.5, target: 'Profit/order €2.50–3.00 without breaking the checkout funnel', url: 'https://myhank.it/prodotto/autosecure/', priorities: ['Fix visible warranty/FAQ/template errors on the frontend','Test higher price: 1x €18.99, 2x €34.99, 3x €47.99','Keep bundle but explain it as "more doors / more rooms"','Compatibility/specs near CTA: left/right doors, up to 30 kg, 128×32 mm, adjustable','ATF headline: "Basta porte che sbattono" or "La porta resta sempre aperta?"','Add 3-step install visual: mount, adjust, door self-closes','Highlight anti-slam, kids, pets, private room, wind use-cases','Tie reviews to real situations: wind, kids, bathroom, office, soft-close','HTML cleanup only if visible on the frontend','Test new creative angles only after page/price fixes'] },
+  { name: 'AquaLevel', status: 'Best checkout — worst click→ATC', statusClass: 'warn', orders: 427, profit: 0.65, roas: 2.11, aov: 27.21, qty: 1.54, atcR: 4.5, cpR: 49.6, target: 'Click→ATC 6.5–7% and profit/order €2.50–3.00', url: 'https://myhank.it/prodotto/aqualevel/', priorities: ['Compatibility/specs block near CTA: 1/2" BSP, 0.2–10 bar, inox 304, no electricity','Clarify 1/2" vs 3/4" ambiguity: is an adapter needed, is it included?','Test higher price: 1x €19.99, 2x €35.99, 3x €49.99','Bundle selector by use-case: 1 drinking point, 2 water points, 3 stable/greenhouse','Add 3-step how-it-works visual: connect, water flows, valve shuts off','Strongly emphasise "senza corrente, senza batterie"','Add use-case grid: chickens, dogs, livestock, garden/greenhouse, tanks','Make reviews concrete: chickens, empty tank, overflow, 1/2" connection','HTML cleanup only as low priority if no visible errors','Creative tests explaining the problem: empty reservoir, overflow, auto level'] },
+  { name: 'Remerod', status: 'Good checkout — problem is pre-ATC and economics', statusClass: 'neg', orders: 608, profit: -0.17, roas: 1.68, aov: 18.46, qty: 1.32, atcR: 6.0, cpR: 45.7, target: 'Click→ATC 8–9% and profit/order at least +€2.00', url: 'https://myhank.it/prodotto/remerod/', priorities: ['Compatibility block near CTA: 68–75 mm outlet boxes, Tipo-86, M4 screws, 20 rods + 20 screws','Add 3-step install visual/video with safety warning: disconnect power first','Test higher price: 1x €16.99, 2x €29.99, 3x €39.99','Simplify selector from 5 options to 1/2/3 kit','Emphasise "1 kit = 20 rods + 20 screws" as value argument','ATF headline: "La presa si muove? Fissala senza sostituire tutta la scatola."','Add product FAQ: compatibility, safety, how many outlets, screws, 68–75 mm','Tie reviews to old houses, worn threads, stable sockets','Test relevant upsell: mini screwdriver, extra screws, home repair kit','Test new ads only after compatibility and how-it-works fixes'] },
+  { name: 'MicroRack', status: 'Healthy SKU for scale — margin too thin', statusClass: 'warn', orders: 3153, profit: 1.92, roas: 2.81, aov: 26.03, qty: 1.16, atcR: 9.7, cpR: 40.9, target: 'Profit/order €3.50–4.00 and qty/order at least 1.30–1.40', url: 'https://myhank.it/prodotto/microrack-ripiano-espandibile-per-forno-a-microonde/', priorities: ['Test higher price: 1x €24.99, 2x €44.99, 3x €59.99','Reframe bundle selector as use-case: microonde, caffe/toaster, dispensa/lavanderia','Set 2-pack as default with logic "microonde + angolo caffe"','Compatibility/specs near CTA: 42–62 cm width, 36.5 cm depth, 46 cm height, up to 30 kg','Highlight 6 hooks as bonus value element','ATF headline more direct: "Crea un ripiano extra sopra il microonde"','Audit checkout — not top priority but review if metrics drop after price/bundle changes','Balance reviews around stability, load capacity, small kitchens','HTML cleanup only as low priority if not frontend-visible','After price/bundle: test angles — microwave steals space, coffee corner, 6 hooks'] },
+  { name: 'RustAid / RHINOFIX Rust Paint', status: 'Positive SKU — needs AOV and checkout optimisation', statusClass: 'pos', orders: 3622, profit: 2.90, roas: 2.78, aov: 20.70, qty: 1.42, atcR: 10.1, cpR: 36.5, target: 'Profit/order €4.00+, qty/order 1.60+, checkout→purchase 42–45%', url: 'https://myhank.it/prodotto/rustaid/', priorities: ['Bundle selector with m² logic: 1x up to 3.5 m², 2x up to 7 m², 3x up to 10.5 m²','Present 2-pack more strongly as recommended for gates, doors, and multiple repairs','Do not lower price — test slightly higher price or higher-value bundle offers','Checkout audit: shipping, COD clarity, field count, mobile speed, phone/address errors','Add "how much do I need?" block right next to CTA','ATF claim more precise: covers, protects, stops further corrosion — not just "eliminates rust"','Reframe brush/copic as kit element or bonus with larger pack','Make reviews more concrete by use-case: gate, railing, balcony, tools','Test strong before/after hero visual with product visible','Test new ad angles only after offer/page fixes'] },
+];
+
+const SKU_BG_COLORS = { RustAid: '#E1F5EE', Elevate: '#FCEBEB', MicroRack: '#E6F1FB', Remerod: '#FCEBEB', AquaLevel: '#FAEEDA', Riboton: '#FCEBEB', AutoSecure: '#FAEEDA' };
+const SKU_TEXT_COLORS = { RustAid: '#0F6E56', Elevate: '#A32D2D', MicroRack: '#185FA5', Remerod: '#A32D2D', AquaLevel: '#854F0B', Riboton: '#A32D2D', AutoSecure: '#854F0B' };
+
+function openSku(idx) {
+  const s = SKU_DATA[idx];
+  document.getElementById('sku-list-view').style.display = 'none';
+  const v = document.getElementById('sku-detail-view');
+  v.style.display = 'block';
+  v.innerHTML = `
+    <button class="back-btn" onclick="closeSku()"><span class="back-arrow">←</span> Back to all SKUs</button>
+    <div style="margin-bottom:14px">
+      <div class="sku-url">${s.url}</div>
+      <div class="sku-name">${s.name}</div>
+      <span class="pill pill-${s.statusClass}" style="margin-top:4px;display:inline-block">${s.status}</span>
+    </div>
+    <div class="two-col">
+      <div class="info-block"><div class="info-label">Orders</div><div class="info-val">${s.orders.toLocaleString()}</div></div>
+      <div class="info-block"><div class="info-label">Profit / order</div><div class="info-val" style="color:${s.statusClass==='pos'?'var(--green)':s.statusClass==='neg'?'var(--red)':'var(--amber)'}">${s.profit > 0 ? '+' : ''}€${s.profit.toFixed(2)}</div></div>
+      <div class="info-block"><div class="info-label">ROAS</div><div class="info-val">${s.roas.toFixed(2)}</div></div>
+      <div class="info-block"><div class="info-label">AOV</div><div class="info-val">€${s.aov.toFixed(2)}</div></div>
+      <div class="info-block"><div class="info-label">Qty / order</div><div class="info-val">${s.qty.toFixed(2)}</div></div>
+      <div class="info-block"><div class="info-label">Click → ATC</div><div class="info-val">${s.atcR}%</div></div>
+    </div>
+    <div class="target-box">
+      <div class="target-label">Test target</div>
+      <div class="target-text">${s.target}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top 10 action priorities</div>
+      <ol class="priority-list">${s.priorities.map((p, i) => `<li class="priority-item"><div class="p-num">${i + 1}</div><div class="p-text">${p}</div></li>`).join('')}</ol>
+    </div>`;
+}
+
+function closeSku() {
+  document.getElementById('sku-list-view').style.display = 'block';
+  const v = document.getElementById('sku-detail-view');
+  v.style.display = 'none';
+  v.innerHTML = '';
+}
+
+/* ── PRIORITY / WHAT TO DO FIRST ── */
+const WAVES = [
+  { id: 1, label: 'Wave 1 — fix trust & errors', desc: 'Do immediately, blocks everything else', bg: '#FCEBEB', color: '#A32D2D' },
+  { id: 2, label: 'Wave 2 — price & bundle', desc: 'Highest profit leverage', bg: '#FAEEDA', color: '#854F0B' },
+  { id: 3, label: 'Wave 3 — page & compatibility', desc: 'Unlocks click→ATC', bg: '#EAF3DE', color: '#3B6D11' },
+  { id: 4, label: 'Wave 4 — checkout & cart', desc: 'Capture lost conversions', bg: '#E6F1FB', color: '#185FA5' },
+  { id: 5, label: 'Wave 5 — creative & ads', desc: 'Only after page/offer is fixed', bg: '#F1EFE8', color: '#5F5E5A' },
+];
+
+const TASKS = [
+  { wave: 1, sku: 'Riboton', cat: 'trust', text: 'Fix visible warranty/FAQ/template errors on the frontend immediately' },
+  { wave: 1, sku: 'AutoSecure', cat: 'trust', text: 'Fix visible warranty/FAQ/template errors on the frontend' },
+  { wave: 1, sku: 'Remerod', cat: 'page', text: 'ATF headline: "La presa si muove? Fissala senza sostituire tutta la scatola."' },
+  { wave: 1, sku: 'Elevate', cat: 'page', text: 'ATF headline more problem-aware: "Poco spazio in cucina?"' },
+  { wave: 1, sku: 'AquaLevel', cat: 'page', text: 'Clarify 1/2" vs 3/4" ambiguity: is an adapter needed, is it included?' },
+  { wave: 1, sku: 'MicroRack', cat: 'page', text: 'ATF headline more direct: "Crea un ripiano extra sopra il microonde"' },
+  { wave: 1, sku: 'RustAid', cat: 'page', text: 'ATF claim more precise: covers, protects, stops further corrosion — not just "eliminates rust"' },
+  { wave: 1, sku: 'Riboton', cat: 'page', text: 'ATF uses safety angle: low pressure isn\'t always visible' },
+  { wave: 1, sku: 'AutoSecure', cat: 'page', text: 'ATF headline: "Basta porte che sbattono" or "La porta resta sempre aperta?"' },
+  { wave: 2, sku: 'Elevate', cat: 'price', text: 'Raise price: 1x €16.99, 2x €29.99, 3x €39.99–42.99' },
+  { wave: 2, sku: 'Riboton', cat: 'price', text: 'Test higher price: 1x €24.99, 2x €44.99, 3x €59.99' },
+  { wave: 2, sku: 'AutoSecure', cat: 'price', text: 'Test higher price: 1x €18.99, 2x €34.99, 3x €47.99' },
+  { wave: 2, sku: 'AquaLevel', cat: 'price', text: 'Test higher price: 1x €19.99, 2x €35.99, 3x €49.99' },
+  { wave: 2, sku: 'Remerod', cat: 'price', text: 'Test higher price: 1x €16.99, 2x €29.99, 3x €39.99' },
+  { wave: 2, sku: 'MicroRack', cat: 'price', text: 'Test higher price: 1x €24.99, 2x €44.99, 3x €59.99' },
+  { wave: 2, sku: 'RustAid', cat: 'price', text: 'Do not lower price — test slightly higher price or higher-value bundle offers' },
+  { wave: 2, sku: 'Elevate', cat: 'bundle', text: 'Bundle selector reframed as use-case logic: microonde, angolo caffe, lavanderia/garage' },
+  { wave: 2, sku: 'Elevate', cat: 'bundle', text: 'Set 2-pack as default — sell as an organisation system, not a discount' },
+  { wave: 2, sku: 'MicroRack', cat: 'bundle', text: 'Bundle selector reframed as use-case: microonde, caffe/toaster, dispensa/lavanderia' },
+  { wave: 2, sku: 'MicroRack', cat: 'bundle', text: 'Set 2-pack as default with logic "microonde + angolo caffe"' },
+  { wave: 2, sku: 'AquaLevel', cat: 'bundle', text: 'Bundle selector by use-case: 1 drinking point, 2 water points, 3 stable/greenhouse' },
+  { wave: 2, sku: 'AutoSecure', cat: 'bundle', text: 'Keep bundle but explain it as "more doors / more rooms"' },
+  { wave: 2, sku: 'Remerod', cat: 'bundle', text: 'Simplify selector from 5 options to 1/2/3 kit' },
+  { wave: 2, sku: 'Remerod', cat: 'bundle', text: 'Emphasise "1 kit = 20 rods + 20 screws" as value argument' },
+  { wave: 2, sku: 'RustAid', cat: 'bundle', text: 'Bundle selector with m² logic: 1x up to 3.5 m², 2x up to 7 m², 3x up to 10.5 m²' },
+  { wave: 2, sku: 'RustAid', cat: 'bundle', text: 'Present 2-pack more strongly as recommended for gates, doors, and multiple repairs' },
+  { wave: 3, sku: 'Remerod', cat: 'page', text: 'Compatibility block near CTA: 68–75 mm outlet boxes, Tipo-86, M4 screws, 20 rods + 20 screws' },
+  { wave: 3, sku: 'Remerod', cat: 'page', text: 'Add 3-step install visual/video with safety warning: disconnect power first' },
+  { wave: 3, sku: 'AquaLevel', cat: 'page', text: 'Compatibility/specs block near CTA: 1/2" BSP, 0.2–10 bar, inox 304, no electricity' },
+  { wave: 3, sku: 'AquaLevel', cat: 'page', text: 'Add 3-step how-it-works visual: connect, water flows, valve shuts off' },
+  { wave: 3, sku: 'AquaLevel', cat: 'page', text: 'Strongly emphasise "senza corrente, senza batterie"' },
+  { wave: 3, sku: 'AquaLevel', cat: 'page', text: 'Add use-case grid: chickens, dogs, livestock, garden/greenhouse, tanks' },
+  { wave: 3, sku: 'Riboton', cat: 'page', text: 'ATF clearly states: complete TPMS kit, display + sensors, pressure + temp, alarms' },
+  { wave: 3, sku: 'Riboton', cat: 'page', text: 'Compatibility/specs near CTA: auto/SUV/furgoni, 0–99 PSI, solar + USB, certifications' },
+  { wave: 3, sku: 'Riboton', cat: 'page', text: 'Add 3-step visual: sensors on valves, display on dash, real-time alerts' },
+  { wave: 3, sku: 'AutoSecure', cat: 'page', text: 'Compatibility/specs near CTA: left/right doors, up to 30 kg, 128×32 mm, adjustable' },
+  { wave: 3, sku: 'AutoSecure', cat: 'page', text: 'Add 3-step install visual: mount, adjust, door self-closes' },
+  { wave: 3, sku: 'AutoSecure', cat: 'page', text: 'Highlight anti-slam, kids, pets, private room, wind use-cases' },
+  { wave: 3, sku: 'MicroRack', cat: 'page', text: 'Compatibility/specs near CTA: 42–62 cm width, 36.5 cm depth, 46 cm height, up to 30 kg' },
+  { wave: 3, sku: 'MicroRack', cat: 'page', text: 'Highlight 6 hooks as bonus value element' },
+  { wave: 3, sku: 'Elevate', cat: 'page', text: 'Add compatibility block near CTA: dimensions, load up to 25 kg, for which appliances' },
+  { wave: 3, sku: 'RustAid', cat: 'page', text: 'Add "how much do I need?" block right next to CTA' },
+  { wave: 3, sku: 'Remerod', cat: 'page', text: 'Add product FAQ: compatibility, safety, how many outlets, screws, 68–75 mm' },
+  { wave: 3, sku: 'Riboton', cat: 'bundle', text: 'Sell 2-pack as "second car / family car", not a random discount' },
+  { wave: 3, sku: 'RustAid', cat: 'bundle', text: 'Reframe brush/copic as kit element or bonus with larger pack' },
+  { wave: 3, sku: 'Elevate', cat: 'upsell', text: 'Replace unrelated LotionRack upsell with another Elevate/kitchen organiser upsell' },
+  { wave: 3, sku: 'Riboton', cat: 'upsell', text: 'Replace upsell with a more relevant car-safety add-on or second Riboton system' },
+  { wave: 3, sku: 'Remerod', cat: 'upsell', text: 'Test relevant upsell: mini screwdriver, extra screws, home repair kit' },
+  { wave: 4, sku: 'RustAid', cat: 'checkout', text: 'Checkout audit: shipping, COD clarity, field count, mobile speed, phone/address errors' },
+  { wave: 4, sku: 'Elevate', cat: 'checkout', text: 'Fix ATC→checkout drop: audit cart drawer, shipping cost, COD, mobile speed' },
+  { wave: 4, sku: 'MicroRack', cat: 'checkout', text: 'Audit checkout — not top priority but review if metrics drop after price/bundle changes' },
+  { wave: 5, sku: 'Elevate', cat: 'page', text: 'Hero/video: before/after mess → organised counter' },
+  { wave: 5, sku: 'Elevate', cat: 'page', text: 'Tie reviews to microwave, coffee corner, small kitchen, laundry use-cases' },
+  { wave: 5, sku: 'Elevate', cat: 'creative', text: 'Test creative angle only after raising price and fixing bundle' },
+  { wave: 5, sku: 'Riboton', cat: 'page', text: 'Make reviews concrete: long drive, low pressure, no wires, solar charging' },
+  { wave: 5, sku: 'Riboton', cat: 'creative', text: 'Test creatives only after page trust and price fixes' },
+  { wave: 5, sku: 'AutoSecure', cat: 'page', text: 'Tie reviews to real situations: wind, kids, bathroom, office, soft-close' },
+  { wave: 5, sku: 'AutoSecure', cat: 'creative', text: 'Test new creative angles only after page/price fixes' },
+  { wave: 5, sku: 'AquaLevel', cat: 'page', text: 'Make reviews concrete: chickens, empty tank, overflow, 1/2" connection' },
+  { wave: 5, sku: 'AquaLevel', cat: 'creative', text: 'Creative tests explaining the problem: empty reservoir, overflow, auto level' },
+  { wave: 5, sku: 'Remerod', cat: 'page', text: 'Tie reviews to old houses, worn threads, stable sockets' },
+  { wave: 5, sku: 'Remerod', cat: 'creative', text: 'Test new ads only after compatibility and how-it-works fixes' },
+  { wave: 5, sku: 'MicroRack', cat: 'page', text: 'Balance reviews around stability, load capacity, small kitchens' },
+  { wave: 5, sku: 'MicroRack', cat: 'creative', text: 'After price/bundle: test angles — microwave steals space, coffee corner, 6 hooks included' },
+  { wave: 5, sku: 'RustAid', cat: 'page', text: 'Make reviews more concrete by use-case: gate, railing, balcony, tools' },
+  { wave: 5, sku: 'RustAid', cat: 'page', text: 'Test strong before/after hero visual with product visible' },
+  { wave: 5, sku: 'RustAid', cat: 'creative', text: 'Test new ad angles only after offer/page fixes' },
+];
+
+const CAT_LABELS = { price: 'Price test', page: 'Page/copy', bundle: 'Bundle', checkout: 'Checkout', trust: 'Trust fix', creative: 'Creative', upsell: 'Upsell' };
+const CAT_CLASSES = { price: 'pill-price', page: 'pill-page', bundle: 'pill-bundle', checkout: 'pill-checkout', trust: 'pill-trust', creative: 'pill-creative', upsell: 'pill-upsell' };
+
+let activeSku = 'all';
+let activeCat = 'all';
+let listBuilt = false;
+
+function buildTaskList() {
+  if (listBuilt && activeSku === 'all' && activeCat === 'all') { listBuilt = true; }
+  const container = document.getElementById('task-list');
+  container.innerHTML = '';
+  let shown = 0;
+
+  WAVES.forEach(w => {
+    const visible = TASKS.filter(t =>
+      t.wave === w.id &&
+      (activeSku === 'all' || t.sku === activeSku) &&
+      (activeCat === 'all' || t.cat === activeCat)
+    );
+    if (visible.length === 0) return;
+    shown += visible.length;
+
+    const sec = document.createElement('div');
+    sec.className = 'wave-section';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'wave-header';
+    hdr.innerHTML = `<div class="wave-badge" style="background:${w.bg};color:${w.color}">${w.id}</div><div class="wave-title">${w.label}</div><div class="wave-meta">${visible.length} task${visible.length !== 1 ? 's' : ''}</div>`;
+    sec.appendChild(hdr);
+
+    const desc = document.createElement('div');
+    desc.className = 'wave-desc';
+    desc.textContent = w.desc;
+    sec.appendChild(desc);
+
+    visible.forEach((t, i) => {
+      const item = document.createElement('div');
+      item.className = 'task-item';
+      const skuBg = SKU_BG_COLORS[t.sku] || '#E6F1FB';
+      const skuColor = SKU_TEXT_COLORS[t.sku] || '#185FA5';
+      item.innerHTML = `
+        <div class="task-left">
+          <div class="task-num">${i + 1}</div>
+          <div class="task-text">${t.text}</div>
+        </div>
+        <div class="task-tags">
+          <span class="pill ${CAT_CLASSES[t.cat]}">${CAT_LABELS[t.cat]}</span>
+          <span class="pill" style="background:${skuBg};color:${skuColor}">${t.sku}</span>
+        </div>`;
+      sec.appendChild(item);
+    });
+    container.appendChild(sec);
+  });
+
+  document.getElementById('count-num').textContent = shown;
+  if (shown === 0) container.innerHTML = '<div class="empty-msg">No tasks match this filter.</div>';
+  listBuilt = true;
+}
+
+function filterSku(btn) {
+  document.querySelectorAll('#sku-filters .fbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  activeSku = btn.dataset.sku;
+  buildTaskList();
+}
+
+function filterCat(btn) {
+  document.querySelectorAll('#cat-filters .fbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  activeCat = btn.dataset.cat;
+  buildTaskList();
+}
+</script>
+</body>
+</html>
